@@ -1,0 +1,20 @@
+<html>
+<head>
+    <title>This is a game</title>
+<script src='/js/jquery.min.js'></script>
+<script src="/js/socket.io.js"></script>
+<script src="/js/frontendlogic.js"></script>
+</head>
+<body>
+    <% if(user) { %>
+    <b>User: </b> <label id="user"><%= user %></label> <a href="/logout" style='color:blue;text-decoration: underline'> Log out</a>
+    <% } %>
+    <div id="join" style="display: none;">
+        Email: <input type="text" id="name"/> <a href="#"><span class="join">Login</span></a>
+    </div>
+    <div id="gamestart">
+        <div> Create a Room</div>
+        <div> Join a Room</div>
+    </div>
+    </body>
+    </html>

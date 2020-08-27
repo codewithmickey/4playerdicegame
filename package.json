@@ -4,6 +4,8 @@
   "description": "1. A simple turn based dice game 2. Dice Outcomes range from 1 to 6 3. 4 Player Game 4. Winning Criteria: Total Sum of the dice outcomes for a player reach 61 or greater 5. 30 Sec turn or autoplay",
   "main": "index.js",
   "scripts": {
+    "dev":"nodemon index.js",
+    "prod":"node index_prod.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -19,8 +21,16 @@
   "homepage": "https://github.com/codewithmickey/4playerdicegame#readme",
   "dependencies": {
     "body-parser": "^1.19.0",
+    "connect-redis": "^5.0.0",
+    "cookie-parser": "^1.4.5",
+    "ejs": "^3.1.5",
     "express": "^4.17.1",
+    "express-session": "^1.17.1",
     "ioredis": "^4.17.3",
+    "redis": "^3.0.2",
     "socket.io": "^2.3.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.4"
   }
 }
