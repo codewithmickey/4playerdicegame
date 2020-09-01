@@ -25,7 +25,7 @@ function renderJoinPage(req, res) {
         res.render('index', { title:'Express', user:req.session.user, roomid:req.session.roomid});
     });
 }
-router.get('/', renderHomePage);
+//router.get('/', renderHomePage);
 
 router.get('/join/:id', function (req, res) {
     //req.session.user = req.body.user;

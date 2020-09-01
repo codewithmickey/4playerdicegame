@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+    <script src='js/jquery.min.js'></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/register.js"></script>
+    <link href="css/bootstrap.css" rel="stylesheet" type="text/css">
+    
+</head>
+<body>
+    <div class="container">
+        
+        <div class="jumbotron">
+            <h1>Register for multi player dice game</h1>
+          </div>
+        <div class="row">
+
+            <div class="col-sm-12">
+
+                <form id="registerForm" class="needs-validation" novalidate>
+                    <div class="form-row">
+                      <div class="col-md-4 mb-3">
+                        <label for="emailId">Email:</label>
+                        <input id="emailId" type="email" class="form-control" placeholder="Email" value="" required>
+                        <div class="valid-feedback">
+                          Looks good!
+                        </div>
+                        <div class="invalid-feedback">
+                            Looks incorrect.
+                          </div>
+                      </div>
+                      </div>
+                    <button class="btn btn-primary" id="registerBtn" type="button">Register</button>
+                  </form>
+
+
+
+            </div>
+        </div>
+
+        
+    </div>
+
+</body>
+</html>

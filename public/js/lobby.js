@@ -4,14 +4,16 @@ var lobby = function(bAdmin,all,id){
     _html=$('<div></div>')
     _header = $('<h2>Game lobby</h2>')
     _playerlist = $('<div></div>')
-    _footer = $('<br><Button class="btn-primary btn-lg">Ready</Button></div>')
+    _footer = $('<button class="btn-primary btn-lg">Ready</button>')
     _playerState = false;
+    var Evts = new Events();
    
     aPlayers = [];
 
     function initLobby(){
         $(_html).append(_header)
         $(_html).append(_playerlist)
+        $(_footer).bind("click",onStartgame);
         if(_bAdmin)
         {
             $(_footer).text('Start Game')
@@ -20,6 +22,10 @@ var lobby = function(bAdmin,all,id){
         $(_html).append(_footer)
         addPlayer(all,id)
        console.log($(_html))
+    }
+
+    function onStartgame(){
+        Evts.dispatchEvent('ON_START_GAME');
     }
     
     function addPlayer(data){
@@ -42,6 +48,7 @@ var lobby = function(bAdmin,all,id){
             console.log(_html)
             return _html;
         },
+        Evts:Evts,
         roomURL:roomURL,
         addPlayer:addPlayer
 
