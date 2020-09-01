@@ -1,14 +1,14 @@
-var lobby = function(bAdmin,all,id){
+var lobby = function(bAdmin,players){
     var _bAdmin = bAdmin;
     console.log("This player data is ",bAdmin)
-    _html=$('<div></div>')
-    _header = $('<h2>Game lobby</h2>')
-    _playerlist = $('<div></div>')
-    _footer = $('<button class="btn-primary btn-lg">Ready</button>')
-    _playerState = false;
+    var _html=$('<div></div>')
+    var _header = $('<h2>Game lobby</h2>')
+    var _playerlist = $('<div></div>')
+    var _footer = $('<button class="btn-primary btn-lg mt-3">Ready</button>')
+    var _playerState = false;
     var Evts = new Events();
    
-    aPlayers = [];
+    var aPlayers = [];
 
     function initLobby(){
         $(_html).append(_header)
@@ -19,27 +19,56 @@ var lobby = function(bAdmin,all,id){
             $(_footer).text('Start Game')
             _playerState = true
         }
-        $(_html).append(_footer)
-        addPlayer(all,id)
-       console.log($(_html))
+        $(_html).append(_footer);
+        //addPlayer(all,id)
+        createLobby(players);
+       console.log($(_html));
+    }
+
+    function createLobby(playersParam){
+
+        for(var i=0;i<playersParam.length;i++){
+            addPlayer(playersParam[i]);
+        }
+
+    }
+
+    function updateLobby(playersParam){
+        console.log("RECEIVED ",playersParam)
+        for(var i=0;i<playersParam.length;i++){
+            var player = getPlayerInstance(playersParam[i].id);
+            player.update(playersParam[i]);
+        }
+    }
+
+    function getPlayerInstance(id){
+        for(var i=0;i<aPlayers.length;i++){
+            if(aPlayers[i].id == id){
+                return aPlayers[i].player
+            }
+        }
     }
 
     function onStartgame(){
-        Evts.dispatchEvent('ON_START_GAME');
+        if(_bAdmin){
+            Evts.dispatchEvent('ON_START_GAME');
+        }else{
+            Evts.dispatchEvent('ON_DISPATCH_STATE');
+        }
+        
     }
     
     function addPlayer(data){
-        var oPlayer = new lobbyPlayer(data,id)
-        oPlayer.setPlayerReady()
+        var oPlayer = new lobbyPlayer(data);
         aPlayers.push({
-            id:id,
+            id:data.id,
             player:oPlayer
         })
-        $(_playerlist).append(oPlayer.getHTML())
+        $(_playerlist).append(oPlayer.getHTML());
     }
     function roomURL(url) {
 
-        _html.prepend('http://localhost:8080/'+url)
+        _header.after(`<p><span><strong>Game Room Id: </strong> </span><span> ${url}</span></p>`);
         
     }
     initLobby()
@@ -50,32 +79,28 @@ var lobby = function(bAdmin,all,id){
         },
         Evts:Evts,
         roomURL:roomURL,
-        addPlayer:addPlayer
+        addPlayer:addPlayer,
+        updateLobby:updateLobby
 
 
     }
 }
 
 
-var lobbyPlayer = function(all,id){
-    //console.log('from lobby player ',all)
-    var myID = id;
+var lobbyPlayer = function(player){
+    var _player = $('<div>'+player.name+': '+player.state+'</div>')
+
+
+    function update(data){
+        console.log("FF DATA :: ",data);
+        $(_player).text(data.name+': '+data.state);
+        console.log("DOM  :: ",$(_player));
+    }
    
-    _playername = all.name
-    console.log(_playername,"player")
-    _player = $('<br><span>'+_playername+': waiting</span>')
-    //_playername = all.name
-    function setPlayerWaiting(){
-        $(_player).text(_playername+': waiting')
-    }
-    function setPlayerReady(){
-        $(_player).text(_playername+': Ready')
-    }
     return{
         getHTML:function(){
             return _player;
         },
-        setPlayerReady:setPlayerReady,
-        setPlayerWaiting:setPlayerWaiting
+        update:update
     }
 }

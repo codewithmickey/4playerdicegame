@@ -22,6 +22,15 @@ class Game{
         this.oGameData.players.push(playerData);
         this.setGameData(this.oGameData)
     }
+    
+    updatePlayerData(id,paramState){
+        for(var i=0;i<this.oGameData.players.length;i++){
+            if(this.oGameData.players[i].id == id){
+                this.oGameData.players[i].state = paramState;
+            }
+        }
+        this.setGameData(this.oGameData)
+    }
 
     removePlayer(){
 

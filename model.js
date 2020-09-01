@@ -2,6 +2,7 @@ class Singleton {
     
     _ioInstance;
     #name
+    #redis
 
     constructor(){
    
@@ -17,8 +18,17 @@ class Singleton {
     get namea() {
         return this.#name;
     }
+    
     set namea(value) {
         this.#name = value;
+    }
+
+    get redisClient() {
+        return this.#redis;
+    }
+    
+    set redisClient(value) {
+        this.#redis = value;
     }
   }
   

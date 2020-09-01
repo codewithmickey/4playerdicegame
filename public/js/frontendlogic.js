@@ -3,6 +3,7 @@
     var myID
     var GameRoom
     var oLobby;
+    var myState = "idle";
 
     'use strict';
     window.addEventListener('load', function() {
@@ -72,12 +73,14 @@
 
         var jqxhr = $.post( "/user/authenticate", {  "userName": userName},function(data) {
             console.log("Response data on Successful login: ",data);
-            $("#loginFormContainer").hide();
-            //initSocketIO();
-            $("#logoutBtn").show();
+            
             
             if(sessionStorage){
-                sessionStorage.setItem("userData",JSON.stringify(data));
+                let sessionData = {
+                    _id:data._id,
+                    userName:data.userName
+                }
+                sessionStorage.setItem("userData",JSON.stringify(sessionData));
             }
 
             navigateTo(data);
@@ -94,11 +97,22 @@
     }
 
     function navigateTo(data){
+        console.log("navigate o : ",data);
+        $("#loginFormContainer").hide();
+        $("#logoutBtn").show();
         initSocketIO();
-        if(data && data.gameStatus && data.gameStatus== "lobby"){
-
-        }else if(data && data.gameStatus && data.gameStatus== "gamePlay"){
-
+        if(data && data.gameState && data.gameState== "lobby"){
+            // Load lobby
+            myID = data.userUniqueId;
+            GameRoom = data.gameId;
+            var userData = JSON.parse(sessionStorage.getItem('userData'));
+            socket.emit("getplayerdata",{gameId:GameRoom,userUniqueId:myID});
+            
+            
+        }else if(data && data.gameState && data.gameState== "gamePlay"){
+            // Load gamePlay
+            myID = data.userUniqueId;
+            GameRoom = data.gameId;
         }else{
             $("#start").show();
             
@@ -116,7 +130,7 @@
     function onJoinButtonClicked(){
         $('#joinroomcontrols').hide();
         var userData = JSON.parse(sessionStorage.getItem('userData'));
-        socket.emit('joingame',{'all':{'name':userData.userName,'score':0,'state':'idle','type':'member'},'gameID':$('#roomid').val()});
+        socket.emit('joingame',{'all':{'name':userData.userName,'score':0,'state':'idle','type':'member'},'gameID':$('#roomid').val(),'_id':userData._id});
     }
 
     function onJoinRoom(){
@@ -128,7 +142,7 @@
         $("#start").hide();
         var userData = JSON.parse(sessionStorage.getItem('userData'));
         console.log("adgadg userData",userData)
-        socket.emit('creategame',{'name':userData.userName,'score':0,'state':'idle','type':'room-admin'})
+        socket.emit('creategame',{'name':userData.userName,'score':0,'state':'ready','type':'room-admin','_id':userData._id})
 
     }
 
@@ -179,9 +193,24 @@
         $("#gameroom").show();
     }
 
+    function onDispatchState(obj, evtName, data){
+        if(myState == "idle"){
+            myState = "ready";
+        }else{
+            myState = "idle";
+        }
+        socket.emit("lobbyupdated",{"gameId":GameRoom,"myID":myID,"state":myState});
+    }
+
     function initSocketIO(){
         socket = io.connect('ws://localhost:8080', {
             transports: ['websocket']
+        });
+
+        socket.on("playerdata",function (data) {
+            console.log("playerdata :: ",data)
+            var userData = JSON.parse(sessionStorage.getItem("userData"));
+            socket.emit('rejoingame',{'all':{'name':userData.userName,'score':0,'state':data.state,'type':data.type},'gameID':GameRoom});
         });
 
         socket.on('playerjoined',function(data){
@@ -199,10 +228,17 @@
             GameRoom = playerdata.inroom
 
             // get into lobby
-            oLobby = new lobby(playerdata.isAdmin,all,myID);
+            oLobby = new lobby(playerdata.isAdmin,playerdata.gamedata.players);
             oLobby.Evts.addEventListener("ON_START_GAME",onGameStart);
+            oLobby.Evts.addEventListener("ON_DISPATCH_STATE",onDispatchState);
             $('#lobby').append(oLobby.getHTML()).show();
             console.log(playerdata.gamedata,"complete game data")
+            
+        })
+
+        socket.on('lobbyupdated',function(data){
+            console.log("Trigger in updateLobby")
+            oLobby.updateLobby(data);
         })
 
         socket.on('roomcreated',function (data) {

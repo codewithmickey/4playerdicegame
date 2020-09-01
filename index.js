@@ -14,15 +14,18 @@ var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var port = process.env.PORT || 8080;
 var util = require('./middleware/utilities');
+var userService = require('./services/user.service');
 var Game = require('./redis/creategame')
 var oModel = require('./model')
 var aGames = [];
 var shortid = require('shortid');
+var Promise = require("bluebird");
 
 
 var redis = require('redis');
 
 var redisClient = redis.createClient(6379, 'localhost');
+Promise.promisifyAll(redisClient);
 
 var redisAdapter = require('socket.io-redis');
 
@@ -32,6 +35,7 @@ oModel.io = io;
 
 
 oModel.namea = "Amit"
+oModel.redisClient = redisClient;
 
 
 // Add middlewares
@@ -74,7 +78,26 @@ function initSockets() {
 
     //
 
+    
 
+    socket.on('getplayerdata', (data) =>{
+      var oGame = findAndGetGame(data.gameId)
+      var gameData = oGame.getGameData();
+      
+      for(var i=0;i<gameData.players.length;i++){
+        if(data.userUniqueId == gameData.players[i].id){
+          socket.emit("playerdata",gameData.players[i]);
+        }
+      }
+
+      io.to(data.gameId).emit("lobbyupdated",oGame.getGameData().players);
+    });
+
+    socket.on('lobbyupdated', (data) =>{
+      var oGame = findAndGetGame(data.gameId)
+      oGame.updatePlayerData(data.myID,data.state);
+      io.to(data.gameId).emit("lobbyupdated",oGame.getGameData().players);
+    });
 
     socket.on('creategame', (data) => {
       console.log('create new game SSS ', data)
@@ -98,7 +121,13 @@ function initSockets() {
       socket.to(gameID).emit('playerjoined', data)
 
       // save gameID, RoomID, PlayerFrontendID in mongoDB per USER
-
+      let userObj = {
+        _id:data._id,
+        gameId:gameID,
+        gameState:"lobby",
+        userUniqueId:data.id
+      }
+      userService.updateGameStats(userObj)
 
       socket.on('rolldice', function (data) {
         socket.to(gameID).emit('rolled', data)
@@ -124,6 +153,35 @@ function initSockets() {
       //  add player to game data
       var oGame = findAndGetGame(data.gameID)
       oGame.addPlayer(data.all)
+      //
+      
+
+      socket.emit('joinroom', { 'gamedata': oGame.getGameData(), 'all': data.all, 'inroom': data.gameID, 'myID': myID, 'isAdmin': false })
+      socket.to(data.gameID).emit('playerjoined', data)
+
+      let userObj = {
+        _id:data._id,
+        gameId:data.gameID,
+        gameState:"lobby",
+        userUniqueId:data.all.id
+      }
+      userService.updateGameStats(userObj)
+
+      //
+    })
+
+    socket.on('rejoingame', (data) => {
+      console.log('join new game', data)
+      // check of returning player
+
+      //
+      var myID = shortid.generate();
+      data.all.id = myID
+
+      socket.join(data.gameID)
+      //  add player to game data
+      var oGame = findAndGetGame(data.gameID)
+      //oGame.addPlayer(data.all)
       //
 
       socket.emit('joinroom', { 'gamedata': oGame.getGameData(), 'all': data.all, 'inroom': data.gameID, 'myID': myID, 'isAdmin': false })

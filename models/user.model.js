@@ -5,6 +5,7 @@ const schema = new Schema({
     userName: { type: String, unique: true, required: true },
     gameId:{ type: String},
     gameState:{ type: String},
+    userUniqueId:{ type: String},
     createdDate: { type: Date, default: Date.now }
 });
 

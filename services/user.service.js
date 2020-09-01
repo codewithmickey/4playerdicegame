@@ -1,16 +1,17 @@
 const config = require('../config.json');
 const jwt = require('jsonwebtoken');
 const db = require('../_helpers/db');
+const { use } = require('../routes/templateroutes');
+var oModel = require('../model')
 const User = db.User;
 
 module.exports = {
     authenticate1,
     getAll,
     getById,
+    updateGameStats,
     register
 };
-
-
 
 async function authenticate1({ userName }) {
     console.log("userName = fff",userName)
@@ -20,11 +21,22 @@ async function authenticate1({ userName }) {
     }else if (user) {
         const { hash, ...userWithoutHash } = user.toObject();
         const token = jwt.sign({ sub: user.id }, config.secret);
+        // var resFromRedis;
+        // if(user.gameId){
+        //     oModel.redisClient.getAsync(user.gameId).then(function(data) {
+        //         console.log("eeee",data);
+        //     }).catch(function(e) {
+        //         console.error(e.stack);
+        //     });
+        // }
+
         return {
-            _id:user._id,
-            userName:user.userName
+            ...userWithoutHash,
+            token
 
         };
+
+        
     }else{
         throw "User doesn't exist."
     }
@@ -36,6 +48,14 @@ async function getAll() {
 
 async function getById(id) {
     return await User.findById(id).select('-hash');
+}
+
+async function updateGameStats(obj) {
+    let user = await User.findById(obj._id);
+    user.gameId = obj.gameId;
+    user.gameState = obj.gameState;
+    user.userUniqueId = obj.userUniqueId;
+    await user.save();
 }
 
 async function register(userParam) {
