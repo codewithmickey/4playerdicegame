@@ -20,17 +20,10 @@ var aGames = [];
 var shortid = require('shortid');
 
 
-//
-// var CookieParser = require('cookie-parser');
-// var SECRET = 'codewithmickey';
-// var cookieParser = CookieParser(SECRET);
-// var ExpressSession = require('express-session');
 var redis = require('redis');
-//var connectRedis = require('connect-redis');
-//var RedisStore = connectRedis(ExpressSession);
 
 var redisClient = redis.createClient(6379, 'localhost');
-//var sessionStore = new RedisStore({ client: redisClient });
+
 var redisAdapter = require('socket.io-redis');
 
 io.adapter(redisAdapter({ host: 'localhost', port: 6379 }));
@@ -41,25 +34,9 @@ oModel.io = io;
 oModel.namea = "Amit"
 
 
-// var sess = ExpressSession({
-//   store: sessionStore,
-//   secret: SECRET,
-//   resave: true,
-//   saveUninitialized: true
-// });
-
-
 // Add middlewares
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
-// app.use(cookieParser);
-// app.use(sess);
-
-//
-
-// view engine setup
-// app.set('views', path.join(__dirname, 'views'));
-// app.set('view engine', 'ejs');
 
 
 
