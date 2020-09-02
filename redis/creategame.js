@@ -14,10 +14,10 @@ class Game{
     nCurrentPlayer = 0;
     nMaxPlayer;
     oGameData = {};
-    nMaxTime = 10;
+    nMaxTime = 30;
     nTimerCountdown = this.nMaxTime
     nTimer;
-    winScore = 30;
+    winScore = 61;
 
     constructor(redis){
         this.oRedis = oModel.redisClient;
