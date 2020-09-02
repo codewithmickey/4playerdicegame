@@ -58,6 +58,7 @@ function initServer() {
          console.log(oGameData.players.length)
          var oGame = new Game(this.redisClient);
           oGame.setGameDataForInit(oGameData,oGameData.gameID)
+          //Restart game if in active state
           oModel.games.push({
             id: oGameData.gameID,
             instance: oGame
@@ -65,6 +66,8 @@ function initServer() {
        })    
       //console.log(keys[i]);
     }
+
+
   });        
 
   

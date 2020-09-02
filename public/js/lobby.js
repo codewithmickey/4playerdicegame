@@ -3,7 +3,7 @@ var lobby = function(bAdmin,players,GameRoom){
     console.log("This player data is ",bAdmin)
     var _html=$('<div></div>')
     var _header = $('<h2>Game lobby</h2>')
-    var _playerlist = $('<div></div>')
+    var _playerlist = $('<div id="player_list"></div>')
     var _footer = $('<button class="btn-primary btn-lg mt-3">Ready</button>')
     var _playerState = false;
     var Evts = new Events();
@@ -27,7 +27,6 @@ var lobby = function(bAdmin,players,GameRoom){
     }
 
     function createLobby(playersParam){
-
         for(var i=0;i<playersParam.length;i++){
             addPlayer(playersParam[i]);
         }
@@ -36,10 +35,14 @@ var lobby = function(bAdmin,players,GameRoom){
 
     function updateLobby(playersParam){
         console.log("RECEIVED ",playersParam)
+        $("#player_list").empty();
         for(var i=0;i<playersParam.length;i++){
-            var player = getPlayerInstance(playersParam[i].id);
-            player.update(playersParam[i]);
+            addPlayer(playersParam[i]);
         }
+        // for(var i=0;i<playersParam.length;i++){
+        //     var player = getPlayerInstance(playersParam[i].id);
+        //     player.update(playersParam[i]);
+        // }
     }
 
     function getPlayerInstance(id){

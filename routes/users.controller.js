@@ -5,6 +5,8 @@ const userService = require('../services/user.service');
 // routes
 router.post('/authenticate', authenticate);
 router.post('/register', register);
+router.post('/leaveGame/:id', leaveGame);
+
 
 router.get('/', getAll);
 router.get('/:id', getById);
@@ -25,6 +27,12 @@ function authenticate(req, res, next) {
 function register(req, res, next) {
     userService.register(req.body)
         .then(() => res.json({message: 'User created successfully.'}))
+        .catch(err => next(err));
+}
+
+function leaveGame(req, res, next) {
+    userService.leaveGame(req.params.id)
+        .then(() => res.json({message: 'Left game successfully.'}))
         .catch(err => next(err));
 }
 

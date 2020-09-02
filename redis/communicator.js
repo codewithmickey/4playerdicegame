@@ -22,21 +22,25 @@ class Communication{
             console.log('a user connected .');
             socket.on('getplayerdata', (data) => {
                 var oGame = this.findAndGetGame(data.gameId)
-                var gameData = oGame.getGameData();
-
-                for (var i = 0; i < gameData.players.length; i++) {
-                    if (data.userUniqueId == gameData.players[i].id) {
-                        socket.emit("playerdata", gameData.players[i]);
+                oGame.getGameData((gameData)=>{
+                    var gameData = gameData;
+                    for (var i = 0; i < gameData.players.length; i++) {
+                        if (data.userUniqueId == gameData.players[i].id) {
+                            socket.emit("playerdata", gameData.players[i]);
+                        }
                     }
-                }
-
-                this.io.to(data.gameId).emit("lobbyupdated", oGame.getGameData().players);
+                    this.io.to(data.gameId).emit("lobbyupdated", gameData.players);
+                });
+                
             });
 
             socket.on('lobbyupdated', (data) => {
                 var oGame = this.findAndGetGame(data.gameId)
                 oGame.updatePlayerData(data.myID, data.state);
-                this.io.to(data.gameId).emit("lobbyupdated", oGame.getGameData().players);
+                oGame.getGameData((gameData)=>{
+                    this.io.to(data.gameId).emit("lobbyupdated", gameData.players);
+                })
+                
             });
 
             socket.on('creategame', (data) => {
@@ -60,20 +64,23 @@ class Communication{
                     instance: oGame
                 })
                 socket.join(gameID)
-                console.log("-", oGame.getGameData(), "Game Data")
 
-                socket.emit('joinroom', { 'gamedata': oGame.getGameData(), 'all': data, 'inroom': gameID, 'myID': data.id, 'isAdmin': true })
-                //socket.emit('roomcreated', { 'room': gameID })
-                socket.to(gameID).emit('playerjoined', data)
+                oGame.getGameData((gameData)=>{
+                    console.log("-", gameData, "Game Data")
 
-                // save gameID, RoomID, PlayerFrontendID in mongoDB per USER
-                let userObj = {
-                    _id: data._id,
-                    gameId: gameID,
-                    gameState: "lobby",
-                    userUniqueId: data.id
-                }
-                userService.updateGameStats(userObj)
+                    socket.emit('joinroom', { 'gamedata': gameData, 'all': data, 'inroom': gameID, 'myID': data.id, 'isAdmin': true })
+                    //socket.emit('roomcreated', { 'room': gameID })
+                    socket.to(gameID).emit('playerjoined', data)
+
+                    // save gameID, RoomID, PlayerFrontendID in mongoDB per USER
+                    let userObj = {
+                        _id: data._id,
+                        gameId: gameID,
+                        gameState: "lobby",
+                        userUniqueId: data.id
+                    }
+                    userService.updateGameStats(userObj)
+                });
 
             })
 
@@ -90,17 +97,18 @@ class Communication{
                 var oGame = this.findAndGetGame(data.gameID)
                 oGame.addPlayer(data.all)
                 //
+                oGame.getGameData((gameData)=>{
+                    socket.emit('joinroom', { 'gamedata': gameData, 'all': data.all, 'inroom': data.gameID, 'myID': myID, 'isAdmin': false })
+                    socket.to(data.gameID).emit('playerjoined', data)
 
-                socket.emit('joinroom', { 'gamedata': oGame.getGameData(), 'all': data.all, 'inroom': data.gameID, 'myID': myID, 'isAdmin': false })
-                socket.to(data.gameID).emit('playerjoined', data)
-
-                let userObj = {
-                    _id: data._id,
-                    gameId: data.gameID,
-                    gameState: "lobby",
-                    userUniqueId: data.all.id
-                }
-                userService.updateGameStats(userObj)
+                    let userObj = {
+                        _id: data._id,
+                        gameId: data.gameID,
+                        gameState: "lobby",
+                        userUniqueId: data.all.id
+                    }
+                    userService.updateGameStats(userObj)
+                });
 
                 //
             })
@@ -118,11 +126,25 @@ class Communication{
                     console.log(`IN ata.type rejoingamelobby >>>> ${data.type}`)
                     bAdmin = true
                 }
-                socket.emit('joinroom', { 'gamedata': oGame.getGameData(), 'all': data.all, 'inroom': data.gameID, 'myID': data.all.id, 'isAdmin': bAdmin })
+                oGame.getGameData((gameData)=>{
+                    socket.emit('joinroom', { 'gamedata': gameData, 'all': data.all, 'inroom': data.gameID, 'myID': data.all.id, 'isAdmin': bAdmin })
+                })
+                
             })
 
             socket.on('rejoingameplay', (data) => {
-                console.log('join game in gameplay', data)
+                console.log('join game in gameplay', data);
+                var oGame = this.findAndGetGame(data.gameId)
+                //oGame.startGame();
+                //userService.updateGameStatsToGamePlay(data.gameID);
+
+                //this.io.to(data.gameID).emit("startgame",oGame.getGameData().players)
+                socket.join(data.gameId)
+                oGame.getGameData((gameData)=>{
+                    socket.emit("startgame",gameData.players)
+                })
+                
+
 
             })
 
@@ -136,7 +158,13 @@ class Communication{
             socket.on("startgame",(data)=>{
                 var oGame = this.findAndGetGame(data.gameID)
                 oGame.startGame();
-                this.io.to(data.gameID).emit("startgame",oGame.getGameData().players)
+                
+                userService.updateGameStatsToGamePlay(data.gameID);
+
+                oGame.getGameData((gameData)=>{
+                    this.io.to(data.gameID).emit("startgame",gameData.players)
+                });
+                
                 
             })
 

@@ -10,6 +10,9 @@ module.exports = {
     getAll,
     getById,
     updateGameStats,
+    leaveGame,
+    gameComplete,
+    updateGameStatsToGamePlay,
     register
 };
 
@@ -50,12 +53,52 @@ async function getById(id) {
     return await User.findById(id).select('-hash');
 }
 
+function findAndGetGame(gameID) {
+    for (var i = 0; i < oModel.games.length; i++) {
+      if (oModel.games[i].id == gameID) {
+        return oModel.games[i].instance
+      }
+    }
+    return null
+  }
+
 async function updateGameStats(obj) {
     let user = await User.findById(obj._id);
     user.gameId = obj.gameId;
     user.gameState = obj.gameState;
     user.userUniqueId = obj.userUniqueId;
     await user.save();
+}
+
+async function leaveGame(userId) {
+    console.log("leaveGame service called")
+    let user = await User.findById(userId);
+    var oGame = findAndGetGame(user.gameId);
+    oGame.removePlayer(user.userUniqueId);
+    user.gameId = undefined;
+    user.gameState = undefined;
+    user.userUniqueId = undefined;
+
+    return await user.save();
+}
+
+async function gameComplete(gameId) {
+    console.log("gameComplete service called")
+    let users = await User.find({gameId:gameId});
+    for(let i=0;i<users.length;i++){
+        users[i].gameId = undefined;
+        users[i].gameState = undefined;
+        users[i].userUniqueId = undefined;
+        await users[i].save();
+    }
+}
+
+async function updateGameStatsToGamePlay(gameId) {
+    let users = await User.find({gameId:gameId});
+    for(let i=0;i<users.length;i++){
+        users[i].gameState = "gamePlay";
+        await users[i].save();
+    }
 }
 
 async function register(userParam) {

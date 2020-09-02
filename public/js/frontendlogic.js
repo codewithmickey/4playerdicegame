@@ -27,7 +27,7 @@
         initApplication();
         $("#loginBtn").bind("click",loginToApplication);
         $("#logoutBtn").bind("click",logOutFromApplication);
-        //$("#logoutBtn").bind("click",logOutFromApplication);
+        $("#leaveGameBtn").bind("click",leaveGame);
         
         if(sessionStorage){
             var userData = JSON.parse(sessionStorage.getItem("userData"));
@@ -56,12 +56,29 @@
         
     });
 
+    function leaveGame(){
+        $("#lobby,#gameroom").hide();
+        var userData = JSON.parse(sessionStorage.getItem("userData"));
+        var jqxhr = $.post( "/user/leaveGame/"+userData._id,function(data) {
+            $("#lobby").empty();    
+            navigateTo(data);
+          })
+            
+            .fail(function(err) {
+                console.log("Fail data on Lofin: ",err);
+                if(err && err.responseText){
+                    alert(err.responseText)    
+                }
+                
+            })
+    }
+
     function logOutFromApplication(){
         if(sessionStorage){
             sessionStorage.removeItem("userData");
         }
         $("#loginFormContainer").show();
-        $("#start,#joinroomcontrols,#lobby,#gameroom,#logoutBtn").hide();
+        $("#start,#joinroomcontrols,#lobby,#gameroom,#logoutBtn,#leaveGameBtn").hide();
         
     }
 
@@ -99,10 +116,13 @@
 
     function navigateTo(data){
         console.log("navigate o : ",data);
-        $("#loginFormContainer").hide();
+        $("#loginFormContainer,#leaveGameBtn").hide();
         $("#logoutBtn").show();
+
         initSocketIO();
         if(data && data.gameState && data.gameState== "lobby"){
+            $("#gameroom #scoreboard").remove();
+            $("#leaveGameBtn").show();
             // Load lobby
             myID = data.userUniqueId;
             GameRoom = data.gameId;
@@ -111,11 +131,15 @@
             
         }else if(data && data.gameState && data.gameState== "gamePlay"){
             // Load gamePlay
+            $("#leaveGameBtn").show();
+            $("#gameroom #scoreboard").remove();
             myID = data.userUniqueId;
             GameRoom = data.gameId;
+            socket.emit("rejoingameplay",{gameId:GameRoom});
             //socket.emit("getplayerdata",{gameId:GameRoom,userUniqueId:myID});
             // rejoin concept
         }else{
+            $("#gameroom #scoreboard").remove();
             $("#start").show();
             
         }
@@ -131,18 +155,22 @@
 
     // Button Events
     function onJoinButtonClicked(){
+        $("#lobby").empty();    
         $('#joinroomcontrols').hide();
+        $("#leaveGameBtn").show();
         var userData = JSON.parse(sessionStorage.getItem('userData'));
         socket.emit('joingame',{'all':{'name':userData.userName,'score':0,'state':'idle','type':'member'},'gameID':$('#roomid').val(),'_id':userData._id});
     }
 
     function onJoinRoom(){
+        
         $('#start').hide();
         $('#joinroomcontrols').show()
     }
 
     function onCreateGame(){
         $("#start").hide();
+        $("#leaveGameBtn").show();
         var userData = JSON.parse(sessionStorage.getItem('userData'));
         console.log("adgadg userData",userData)
         socket.emit('creategame',{'name':userData.userName,'score':0,'state':'ready','type':'room-admin','_id':userData._id})
@@ -192,6 +220,7 @@
     }
 
     function onRollDice() {
+        $('#playertimer').text("0");
         socket.emit('rolldice',{'gameID':GameRoom})
     }
 
@@ -200,6 +229,7 @@
         //oGamePlay = new gameroom();
         
         //oGamePlay.update();
+        $("#leaveGameBtn").show();
         socket.emit('startgame',{'gameID':GameRoom})
     }
 
@@ -224,13 +254,13 @@
         });
 
         socket.on("GameWon",function(data){
-            if(myID == data)
+            if(myID == data.id)
             {
-                alert("you won the match")
+                alert("you won the match");
             }
             else
             {
-                alert("Other player won the match")
+                alert(data.name+" won the match");
             }
         })
 

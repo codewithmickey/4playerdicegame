@@ -1,4 +1,6 @@
-var oModel = require('../model')
+var oModel = require('../model');
+var userService = require('../services/user.service');
+
 
 class Game{
 
@@ -12,10 +14,10 @@ class Game{
     nCurrentPlayer = 0;
     nMaxPlayer;
     oGameData = {};
-    nMaxTime = 30;
+    nMaxTime = 10;
     nTimerCountdown = this.nMaxTime
     nTimer;
-    winScore = 61;
+    winScore = 30;
 
     constructor(redis){
         this.oRedis = oModel.redisClient;
@@ -42,10 +44,6 @@ class Game{
             }
         }
         this.setGameData(this.oGameData)
-    }
-
-    removePlayer(){
-
     }
 
     computeNextTurn(){
@@ -106,6 +104,8 @@ class Game{
             console.log("Won >>> ")
             this.oIO.to(this.oGameID).emit('GameWon',this.oGameData.players[this.nCurrentPlayer])
             // destry redis key
+            this.oRedis.del(this.oGameID);
+            userService.gameComplete(this.oGameID);
         }
         else{
             console.log("Start Next Turn >>> ")
@@ -152,6 +152,29 @@ class Game{
         this.startTurnCountDown()
     }
 
+    removePlayer(id){
+        console.log("removePlayer called..",this.oGameData.gameState,id);
+        let tempArr = [];
+        for(var i=0;i<this.oGameData.players.length;i++){
+            if(this.oGameData.players[i].id != id){
+                tempArr.push(this.oGameData.players[i]);
+            }
+        }
+
+        console.log("tempArr ",tempArr)
+        this.oGameData.players = tempArr;
+        
+        this.setGameData();
+        if(this.oGameData.gameState == "TOSTART"){
+            this.oIO.to(this.oGameID).emit("lobbyupdated", this.oGameData.players);
+        }else if(this.oGameData.gameState == "ACTIVE"){
+            console.log("ACTIVE State ..",this.oGameData.gameState)
+        }else{
+            console.log("ELSE State ..",this.oGameData.gameState)
+        }
+        
+    }
+
     
     setGameData(obj){
         var data = JSON.stringify(obj);
@@ -160,18 +183,19 @@ class Game{
         })
     }
 
-    getGameData(){ // need to get redis data with await
-        console.log(this.oGameID)
-        return this.oGameData
-        /*
+    getGameData(callback){ // need to get redis data with await
+        //console.log(this.oGameID)
+        //return this.oGameData
+        
         this.oRedis.get(this.oGameID,  (err, res) => {
            //console.log(res)
             var temp = JSON.parse(res);
             console.log(temp);
-            return temp;
+            callback(temp);
           })
-       */
+       
     }
+    
 
 }
 
