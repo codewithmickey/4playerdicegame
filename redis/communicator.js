@@ -4,16 +4,15 @@ var userService = require('../services/user.service');
 var Game = require('./creategame')
 
 class Communication{
-
    io;
    redisClient;
    aGames;
-    
     constructor() {
+
+        // pickup values from Singleton Model class
         this.io = oModel.io;
         this.redisClient = oModel.redisClient;
         this.aGames = oModel.games;
-
         //console.log(this.redisClient,"From Communicator")
     }
 
@@ -43,7 +42,6 @@ class Communication{
                 console.log('create new game SSS ', data)
                 // add user to DB and create new game instance
                 //
-
                 var oGame = new Game(this.redisClient);
                 //oGame.setGameData();
                 var gameID = shortid.generate()
@@ -53,11 +51,10 @@ class Communication{
                     id: gameID,
                     instance: oGame
                 })
-
                 socket.join(gameID)
                 console.log("-", oGame.getGameData(), "Game Data")
                 socket.emit('joinroom', { 'gamedata': oGame.getGameData(), 'all': data, 'inroom': gameID, 'myID': data.id, 'isAdmin': true })
-                socket.emit('roomcreated', { 'room': gameID })
+                //socket.emit('roomcreated', { 'room': gameID })
                 socket.to(gameID).emit('playerjoined', data)
 
                 // save gameID, RoomID, PlayerFrontendID in mongoDB per USER
@@ -71,7 +68,6 @@ class Communication{
 
             })
 
-
             socket.on('joingame', (data) => {
                 console.log('join new game', data)
                 
@@ -83,7 +79,6 @@ class Communication{
                 var oGame = this.findAndGetGame(data.gameID)
                 oGame.addPlayer(data.all)
                 //
-
 
                 socket.emit('joinroom', { 'gamedata': oGame.getGameData(), 'all': data.all, 'inroom': data.gameID, 'myID': myID, 'isAdmin': false })
                 socket.to(data.gameID).emit('playerjoined', data)
@@ -100,13 +95,19 @@ class Communication{
             })
 
             socket.on('rejoingamelobby', (data) => {
-                console.log('join new game', data)
+                console.log('rejoin game', data)
                 var myID = shortid.generate();
-                data.all.id = myID
+                //data.all.id = myID
                 socket.join(data.gameID)
                 var oGame = this.findAndGetGame(data.gameID)
-                socket.emit('joinroom', { 'gamedata': oGame.getGameData(), 'all': data.all, 'inroom': data.gameID, 'myID': myID, 'isAdmin': false })
-                socket.to(data.gameID).emit('playerjoined', data)
+                var bAdmin = false;
+                console.log(`data.type rejoingamelobby >>>> ${data.all.type}`)
+                if(data.all.type == 'room-admin')
+                {
+                    console.log(`IN ata.type rejoingamelobby >>>> ${data.type}`)
+                    bAdmin = true
+                }
+                socket.emit('joinroom', { 'gamedata': oGame.getGameData(), 'all': data.all, 'inroom': data.gameID, 'myID': data.all.id, 'isAdmin': bAdmin })
             })
 
             socket.on('rejoingameplay', (data) => {

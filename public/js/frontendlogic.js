@@ -108,7 +108,6 @@
             var userData = JSON.parse(sessionStorage.getItem('userData'));
             socket.emit("getplayerdata",{gameId:GameRoom,userUniqueId:myID});
             
-            
         }else if(data && data.gameState && data.gameState== "gamePlay"){
             // Load gamePlay
             myID = data.userUniqueId;
@@ -208,9 +207,9 @@
         });
 
         socket.on("playerdata",function (data) {
-            console.log("playerdata :: ",data)
+            console.log("playerdata  >>>>> :: ",data)
             var userData = JSON.parse(sessionStorage.getItem("userData"));
-            socket.emit('rejoingamelobby',{'all':{'name':userData.userName,'score':0,'state':data.state,'type':data.type},'gameID':GameRoom});
+            socket.emit('rejoingamelobby',{'all':{'name':userData.userName,'score':0,'state':data.state,'type':data.type, 'id':data.id},'gameID':GameRoom});
         });
 
         socket.on('playerjoined',function(data){
@@ -228,9 +227,10 @@
             GameRoom = playerdata.inroom
 
             // get into lobby
-            oLobby = new lobby(playerdata.isAdmin,playerdata.gamedata.players);
+            oLobby = new lobby(playerdata.isAdmin,playerdata.gamedata.players,GameRoom);
             oLobby.Evts.addEventListener("ON_START_GAME",onGameStart);
             oLobby.Evts.addEventListener("ON_DISPATCH_STATE",onDispatchState);
+            $('#lobby').html('');
             $('#lobby').append(oLobby.getHTML()).show();
             console.log(playerdata.gamedata,"complete game data")
             
@@ -241,20 +241,17 @@
             oLobby.updateLobby(data);
         })
 
-        socket.on('roomcreated',function (data) {
-            oLobby.roomURL(data.room)
-        })
-        
-        socket.on('rolled',function(data){
-            console.log(data)
-            // update view for as the playerID
+        // gameplay sockets
+
+        socket.on('startgame',function(){
+            // show gameplay screen and hide all other screens
+            
         })
 
-        var roomid = $('#roomid').text();
-        if(roomid !== '')
-        {
-            socket.emit("joingame",{'mygame':roomid})
-        }
+        socket.on('gameplayupdate',function(params) {
+            
+        })
+
     }
 
 })(myApp = myApp || {})

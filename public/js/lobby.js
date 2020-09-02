@@ -1,4 +1,4 @@
-var lobby = function(bAdmin,players){
+var lobby = function(bAdmin,players,GameRoom){
     var _bAdmin = bAdmin;
     console.log("This player data is ",bAdmin)
     var _html=$('<div></div>')
@@ -16,6 +16,7 @@ var lobby = function(bAdmin,players){
         $(_footer).bind("click",onStartgame);
         if(_bAdmin)
         {
+            roomURL(GameRoom)
             $(_footer).text('Start Game')
             _playerState = true
         }

@@ -12,6 +12,8 @@ var oModel = require('./model')
 var aGames = [];
 var Promise = require("bluebird");
 var redis = require('redis');
+var routes = require('./routes/templateroutes');
+var userRoutes = require('./routes/users.controller');
 var redisClient = redis.createClient(config.redisport, config.redishost);
 Promise.promisifyAll(redisClient);
 var redisAdapter = require('socket.io-redis');
@@ -34,10 +36,6 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-
-// setup routes
-var routes = require('./routes/templateroutes');
-var userRoutes = require('./routes/users.controller');
 
 // Add middlewares
 app.use('/', routes);
