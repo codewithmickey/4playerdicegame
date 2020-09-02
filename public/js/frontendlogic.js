@@ -243,7 +243,7 @@
     }
 
     function initSocketIO(){
-        socket = io.connect('ws://13.126.211.117:8080', {
+        socket = io.connect('ws://localhost:8080', {
             
             transports: ['websocket']
         });
