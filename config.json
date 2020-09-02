@@ -2,6 +2,5 @@
     "connectionString": "mongodb+srv://admin:admin1234@cluster0.1epox.mongodb.net/dicemmo",
     "secret": "CODEWITHMICKEY",
     "redishost":"localhost",
-    "redisaws":"mmo2.vsvdtt.ng.0001.aps1.cache.amazonaws.com",
     "redisport":6379
 }
