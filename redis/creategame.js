@@ -14,7 +14,7 @@ class Game{
     oGameData = {};
 
     constructor(redis){
-        this.oRedis = redis;
+        this.oRedis = oModel.redisClient;
         this.oIO = oModel.io;
     }
 
@@ -78,11 +78,11 @@ class Game{
     setGameData(obj){
         var data = JSON.stringify(obj);
         this.oRedis.set(this.oGameID,data,function(){
-            console.log("Data Set  ",oModel.namea)
+            console.log("Data Set in redis under key",this.oGameID)
         })
     }
 
-    getGameData(){
+    getGameData(){ // need to get redis data with await
         console.log(this.oGameID)
         return this.oGameData
         /*

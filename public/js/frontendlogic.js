@@ -210,7 +210,7 @@
         socket.on("playerdata",function (data) {
             console.log("playerdata :: ",data)
             var userData = JSON.parse(sessionStorage.getItem("userData"));
-            socket.emit('rejoingame',{'all':{'name':userData.userName,'score':0,'state':data.state,'type':data.type},'gameID':GameRoom});
+            socket.emit('rejoingamelobby',{'all':{'name':userData.userName,'score':0,'state':data.state,'type':data.type},'gameID':GameRoom});
         });
 
         socket.on('playerjoined',function(data){

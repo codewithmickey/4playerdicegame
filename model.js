@@ -1,7 +1,7 @@
 class Singleton {
     
     _ioInstance;
-    #name
+    #gamesarray
     #redis
 
     constructor(){
@@ -15,12 +15,12 @@ class Singleton {
         this.ioInstance = value;
     }
 
-    get namea() {
-        return this.#name;
+    get games() {
+        return this.#gamesarray;
     }
     
-    set namea(value) {
-        this.#name = value;
+    set games(value) {
+        this.#gamesarray = value;
     }
 
     get redisClient() {
