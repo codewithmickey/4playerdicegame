@@ -23,6 +23,19 @@ var gameroom = function(){
         });
         
     }
+
+    function setTurn(playerData)
+    {
+        // update player data 
+        console.log("data for turn ",playerData)
+        $(_html).bootstrapTable("destroy");
+        $(_html).bootstrapTable({
+            data: playerData
+        });
+        $(_html).bootstrapTable('refresh')
+    }
+
+
     function update(playerData){
         // update player data 
         console.log("data in gameroom ",playerData)
@@ -39,6 +52,7 @@ var gameroom = function(){
             return _html;
         },
         update:update,
-        create:create
+        create:create,
+        setTurn:setTurn
     }
 }

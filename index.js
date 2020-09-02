@@ -9,6 +9,7 @@ var port = process.env.PORT || 8080;
 var config = require('./config.json')
 var Communication = require('./redis/communicator')
 var oModel = require('./model')
+var Game = require('./redis/creategame');
 var aGames = [];
 var Promise = require("bluebird");
 var redis = require('redis');
@@ -46,6 +47,28 @@ app.use(errorHandlers.notFound);
 
 function initServer() {
 
+  // create game data from Redis
+
+  redisClient.keys('*', function (err, keys) {
+    if (err) return console.log(err);
+    for(var i = 0, len = keys.length; i < len; i++) {
+      redisClient.get(keys[i],  (err, res) => {
+         var oGameData = JSON.parse(res);
+         console.log(oGameData);
+         console.log(oGameData.players.length)
+         var oGame = new Game(this.redisClient);
+          oGame.setGameDataForInit(oGameData,oGameData.gameID)
+          oModel.games.push({
+            id: oGameData.gameID,
+            instance: oGame
+          })
+       })    
+      //console.log(keys[i]);
+    }
+  });        
+
+  
+
   // initialize websocket Communication
 
   Communicator = new Communication();
@@ -56,6 +79,8 @@ function initServer() {
     if (err) return console.error(process.pid, 'error listening on port', port, err);
     console.log(process.pid, 'listening on port', port);
   });
+
+  
 }
 
 initServer();

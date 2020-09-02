@@ -12,7 +12,7 @@ class Game{
     nCurrentPlayer = 0;
     nMaxPlayer;
     oGameData = {};
-    nMaxTime = 10;
+    nMaxTime = 30;
     nTimerCountdown = this.nMaxTime
     nTimer;
     winScore = 61;
@@ -20,7 +20,13 @@ class Game{
     constructor(redis){
         this.oRedis = oModel.redisClient;
         this.oIO = oModel.io;
-        console.log(this.oIO,"Socket IO instance >>> in gameroom")
+        //console.log(this.oIO,"Socket IO instance >>> in gameroom")
+    }
+
+    setGameDataForInit(oGameData,oGameID){
+        //console.log(oGameID,"This is good",oGameData)
+       this.oGameData = oGameData
+        this.oGameID = oGameID
     }
 
     addPlayer(playerData){
@@ -52,23 +58,27 @@ class Game{
         console.log("this.nCurrentPlayer >> ",this.nCurrentPlayer)
     }
 
+    setPlayerTurn(){
+        for(var i=0;i<this.oGameData.players.length;i++)
+        {
+            this.oGameData.players[i].turn = "";
+        }
+        this.oGameData.players[this.nCurrentPlayer].turn = " >> ";
+        this.oIO.to(this.oGameID).emit('playerturn', this.oGameData.players);
+        console.log("Current Player is :: ",this.oGameData.players[this.nCurrentPlayer])
+    }
     startTurnCountDown(){
         console.log("Starting Countdown Timer... ")
+        this.setPlayerTurn();
         this.nTimer = setInterval(()=>{
-            console.log("Running Timer... ",this.nTimerCountdown)
+            //console.log("Running Timer... ",this.nTimerCountdown)
             this.oIO.to(this.oGameID).emit('turntimer', {'timer':this.nTimerCountdown,'playerID':this.oGameData.players[this.nCurrentPlayer].id});
             this.nTimerCountdown--
             if (this.nTimerCountdown === 0) {
-                this.autoplayTurn()
+                this.playTurn();
                 //clearInterval(this.nTimer);
             }
           }, 1000);
-    }
-
-    autoplayTurn(){
-        this.nTimerCountdown = this.nMaxTime;
-        console.log("autoplayTurn ... nTimerCountdown >>",this.nTimerCountdown)
-        this.playTurn();
     }
 
     computePlayerScore(min, max) { // min and max included 
@@ -76,6 +86,7 @@ class Game{
       }
 
     playTurn(){
+        this.nTimerCountdown = this.nMaxTime;
         console.log("playTurn ...  >>")
         clearInterval(this.nTimer);
         // play turn for a player

@@ -164,6 +164,7 @@ class Communication{
     }
 
     findAndGetGame(gameID) {
+        console.log(this.aGames,gameID,"From FInd")
         for (var i = 0; i < this.aGames.length; i++) {
           if (this.aGames[i].id == gameID) {
             return this.aGames[i].instance

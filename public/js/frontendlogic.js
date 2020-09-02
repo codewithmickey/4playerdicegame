@@ -113,6 +113,8 @@
             // Load gamePlay
             myID = data.userUniqueId;
             GameRoom = data.gameId;
+            //socket.emit("getplayerdata",{gameId:GameRoom,userUniqueId:myID});
+            // rejoin concept
         }else{
             $("#start").show();
             
@@ -280,7 +282,7 @@
 
         socket.on('playerturn',function(data){
             // update the turn of the player and highlights its data in the table
-            
+            try{oGamePlay.setTurn(data)}catch(e){console.log(e)}
         })
 
         socket.on('turntimer',function(data){
@@ -289,6 +291,12 @@
             if(data.playerID == myID)
             {
                 $('#playertimer').text(data.timer);
+                $('#rollbutton').css('pointer-events',"all");
+                $('#rollbutton').find('button').prop('disabled', false); 
+            }else
+            {
+                $('#rollbutton').css('pointer-events',"none");
+                $('#rollbutton').find('button').prop('disabled', true); 
             }
         })
 
