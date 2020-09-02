@@ -15,10 +15,10 @@ var Promise = require("bluebird");
 var redis = require('redis');
 var routes = require('./routes/templateroutes');
 var userRoutes = require('./routes/users.controller');
-var redisClient = redis.createClient(config.redisport, config.redishost);
+var redisClient = redis.createClient(config.redisport, config.redisaws);
 Promise.promisifyAll(redisClient);
 var redisAdapter = require('socket.io-redis');
-io.adapter(redisAdapter({ host: config.redishost, port: config.redisport }));
+io.adapter(redisAdapter({ host: config.redisaws, port: config.redisport }));
 
 process.on('uncaughtException', function (err) {
   console.error((new Date).toUTCString() + ' uncaughtException:', err.message)
