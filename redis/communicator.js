@@ -1,7 +1,8 @@
 var oModel = require('../model')
 var shortid = require('shortid');
 var userService = require('../services/user.service');
-var Game = require('./creategame')
+var Game = require('./creategame');
+const { io } = require('../model');
 
 class Communication{
    io;
@@ -46,13 +47,21 @@ class Communication{
                 //oGame.setGameData();
                 var gameID = shortid.generate()
                 data.id = shortid.generate()
-                oGame.createGame(gameID, data)
+                oGame.createGame(gameID)
+
+                data.currentScore = 0
+                data.turn = ""
+                //delete data._id
+                oGame.addPlayer(data)
+
+
                 this.aGames.push({
                     id: gameID,
                     instance: oGame
                 })
                 socket.join(gameID)
                 console.log("-", oGame.getGameData(), "Game Data")
+
                 socket.emit('joinroom', { 'gamedata': oGame.getGameData(), 'all': data, 'inroom': gameID, 'myID': data.id, 'isAdmin': true })
                 //socket.emit('roomcreated', { 'room': gameID })
                 socket.to(gameID).emit('playerjoined', data)
@@ -73,6 +82,8 @@ class Communication{
                 
                 var myID = shortid.generate();
                 data.all.id = myID
+                data.all.currentScore = 0
+                data.all.turn = ""
 
                 socket.join(data.gameID)
                 //  add player to game data
@@ -114,6 +125,34 @@ class Communication{
                 console.log('join game in gameplay', data)
 
             })
+
+
+
+            //
+
+            //gameplay sockets
+
+
+            socket.on("startgame",(data)=>{
+                var oGame = this.findAndGetGame(data.gameID)
+                oGame.startGame();
+                this.io.to(data.gameID).emit("startgame",oGame.getGameData().players)
+                
+            })
+
+            socket.on("rolldice",(data)=>{
+                var oGame = this.findAndGetGame(data.gameID)
+                oGame.playTurn();
+            })
+
+
+
+
+
+
+
+
+            //
 
 
 

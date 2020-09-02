@@ -4,6 +4,7 @@
     var GameRoom
     var oLobby;
     var myState = "idle";
+    var oGamePlay
 
     'use strict';
     window.addEventListener('load', function() {
@@ -123,6 +124,7 @@
         $('#creategame').bind('click',onCreateGame)
         $('#joinroom').bind('click',onJoinRoom)
         $('#joinbutton').bind('click',onJoinButtonClicked)
+        $('#rollbutton').bind('click',onRollDice)
     }
 
     // Button Events
@@ -187,9 +189,16 @@
         });
     }
 
+    function onRollDice() {
+        socket.emit('rolldice',{'gameID':GameRoom})
+    }
+
     function onGameStart(obj, evtName, data){
-        $("#start,#joinroomcontrols,#lobby,#gameroom,#loginFormContainer,#lobby").hide();
-        $("#gameroom").show();
+        
+        //oGamePlay = new gameroom();
+        
+        //oGamePlay.update();
+        socket.emit('startgame',{'gameID':GameRoom})
     }
 
     function onDispatchState(obj, evtName, data){
@@ -211,6 +220,17 @@
             var userData = JSON.parse(sessionStorage.getItem("userData"));
             socket.emit('rejoingamelobby',{'all':{'name':userData.userName,'score':0,'state':data.state,'type':data.type, 'id':data.id},'gameID':GameRoom});
         });
+
+        socket.on("GameWon",function(data){
+            if(myID == data)
+            {
+                alert("you won the match")
+            }
+            else
+            {
+                alert("Other player won the match")
+            }
+        })
 
         socket.on('playerjoined',function(data){
             console.log('new player joined',data)
@@ -243,13 +263,38 @@
 
         // gameplay sockets
 
-        socket.on('startgame',function(){
+        socket.on('rejoingameroom',function(data) {
+            // setup rejoin game room
+        })
+
+        socket.on('startgame',function(data){
             // show gameplay screen and hide all other screens
+
+            
+            $("#start,#joinroomcontrols,#lobby,#gameroom,#loginFormContainer,#lobby").hide();
+            $("#gameroom").show();
+            oGamePlay = new gameroom();
+            $("#gameroom").prepend(oGamePlay.getHtml()).show();
+            oGamePlay.create(data);
+        })
+
+        socket.on('playerturn',function(data){
+            // update the turn of the player and highlights its data in the table
             
         })
 
-        socket.on('gameplayupdate',function(params) {
-            
+        socket.on('turntimer',function(data){
+            // as soon as the turn comes of a player and 00:30 sec timer starts ... the time will be displayed through this socket
+            console.log("turn timer",data)
+            if(data.playerID == myID)
+            {
+                $('#playertimer').text(data.timer);
+            }
+        })
+
+        socket.on('gameplayupdate',function(data) {
+            // as soon as any change in the scores
+            oGamePlay.update(data);
         })
 
     }

@@ -7,12 +7,15 @@
     <title>Dice Game</title>
     <script src='js/jquery.min.js'></script>
     <script src="js/socket.io.js"></script>
+    <script src="js/gameroom.js"></script>
     <script src="js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.10.1/bootstrap-table.min.js"></script>
     <script src="js/events.js"></script>
     <script src="js/player.js"></script>
     <script src="js/lobby.js"></script>
     <script src="js/frontendlogic.js"></script>
     <link href="css/bootstrap.css" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.10.1/bootstrap-table.min.css">
 </head>
 
 <body>
@@ -74,28 +77,7 @@
 
             </div>
             <div id="gameroom" class="col-sm-12" style="display: none;">
-                <div class="rolldice"><Button class="btn-primary btn-lg">Roll Dice</Button></div>
-
-                <table class="table table-bordered">
-                    <thead>
-                      <tr>
-                        <th scope="col">#</th>
-                        <th scope="col">First</th>
-                        <th scope="col">Last</th>
-                        <th scope="col">Handle</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <th scope="row">1</th>
-                        <td>Mark</td>
-                        <td>Otto</td>
-                        <td>@mdo</td>
-                      </tr>
-                     
-                    </tbody>
-                  </table>
-
+                <label>Timer: </label><div id="playertimer">00:00</div><div class="rolldice mt-4"><a href="#" id="rollbutton"><Button class="btn-primary btn-lg">Roll Dice</Button></a></div>
             </div>
         </div>
     </div>
