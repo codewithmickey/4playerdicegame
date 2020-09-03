@@ -155,9 +155,12 @@ class Game{
     removePlayer(id){
         console.log("removePlayer called..",this.oGameData.gameState,id);
         let tempArr = [];
+        let removedPlayer;
         for(var i=0;i<this.oGameData.players.length;i++){
             if(this.oGameData.players[i].id != id){
                 tempArr.push(this.oGameData.players[i]);
+            }else{
+                removedPlayer = this.oGameData.players[i];
             }
         }
 
@@ -169,6 +172,9 @@ class Game{
             this.oIO.to(this.oGameID).emit("lobbyupdated", this.oGameData.players);
         }else if(this.oGameData.gameState == "ACTIVE"){
             console.log("ACTIVE State ..",this.oGameData.gameState)
+            this.oIO.to(this.oGameID).emit("forceGameEnd", removedPlayer);
+            clearInterval(this.nTimer);
+            userService.gameComplete(this.oGameID);
         }else{
             console.log("ELSE State ..",this.oGameData.gameState)
         }

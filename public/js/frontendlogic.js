@@ -254,6 +254,16 @@
             socket.emit('rejoingamelobby',{'all':{'name':userData.userName,'score':0,'state':data.state,'type':data.type, 'id':data.id},'gameID':GameRoom});
         });
 
+        socket.on("forceGameEnd",function (data) {
+            if(data.id != myID){
+                location.reload();
+            }
+            alert(`${data.name} left the game. Game ended.`);
+            
+        });
+
+
+
         socket.on("GameWon",function(data){
             if(myID == data.id)
             {
