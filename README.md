@@ -25,8 +25,8 @@ Redis (Localhost:6379)
 MongoDB (It's on my Atlas cluster)
 
 **To Run the Application:**
-For dev: npm run dev (This will need nodemon as a dev dependency)
-For Prod: npm run prod ( For utilizing all the cores of the processor, I am using cluster method and forking processes on every core of the processor)
+* **For dev:** npm run dev (This will need nodemon as a dev dependency)
+* **For Prod:** npm run prod ( For utilizing all the cores of the processor, I am using cluster method and forking processes on every core of the processor)
 
 **Flow of the Application:**
 * Run the application
