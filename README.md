@@ -20,9 +20,9 @@
 [![Click to see the explanation](https://img.youtube.com/vi/OYCVE2jsv0w/0.jpg)](https://www.youtube.com/watch?v=OYCVE2jsv0w)
 
 **Requirements:**
-NodeJS 12.18.3
-Redis (Localhost:6379)
-MongoDB (It's on my Atlas cluster)
+* NodeJS 12.18.3
+* Redis (Localhost:6379)
+* MongoDB (It's on my Atlas cluster)
 
 **To Run the Application:**
 * **For dev:** npm run dev (This will need nodemon as a dev dependency)
