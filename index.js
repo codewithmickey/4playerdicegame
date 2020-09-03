@@ -12,7 +12,7 @@ var oModel = require('./model')
 var Game = require('./redis/creategame');
 var aGames = [];
 var redis = require('redis');
-var routes = require('./routes/templateroutes');
+//var routes = require('./routes/templateroutes');
 var userRoutes = require('./routes/users.controller');
 var redisClient = redis.createClient(config.redisport, config.redishost);
 var redisAdapter = require('socket.io-redis');
@@ -37,7 +37,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 
 // Add middlewares
-app.use('/', routes);
+//app.use('/', routes);
 app.use('/user', userRoutes);
 app.use(errorHandlers.error);
 app.use(errorHandlers.notFound);

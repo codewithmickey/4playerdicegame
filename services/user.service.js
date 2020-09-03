@@ -1,7 +1,6 @@
 const config = require('../config.json');
 const jwt = require('jsonwebtoken');
 const db = require('../_helpers/db');
-const { use } = require('../routes/templateroutes');
 var oModel = require('../model')
 const User = db.User;
 
