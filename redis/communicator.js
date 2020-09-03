@@ -2,7 +2,6 @@ var oModel = require('../model')
 var shortid = require('shortid');
 var userService = require('../services/user.service');
 var Game = require('./creategame');
-const { io } = require('../model');
 
 class Communication{
    io;
