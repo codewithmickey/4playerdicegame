@@ -2,5 +2,6 @@
     "connectionString": "mongodb+srv://admin:admin1234@cluster0.1epox.mongodb.net/dicemmo",
     "secret": "CODEWITHMICKEY",
     "redishost":"localhost",
+    "redishostprod":"redis.codewithmickey.com",
     "redisport":6379
 }

@@ -14,9 +14,9 @@ var aGames = [];
 var redis = require('redis');
 //var routes = require('./routes/templateroutes');
 var userRoutes = require('./routes/users.controller');
-var redisClient = redis.createClient(config.redisport, config.redishost);
+var redisClient = redis.createClient(config.redisport, config.redishostprod);
 var redisAdapter = require('socket.io-redis');
-io.adapter(redisAdapter({ host: config.redishost, port: config.redisport }));
+io.adapter(redisAdapter({ host: config.redishostprod, port: config.redisport }));
 
 process.on('uncaughtException', function (err) {
   console.error((new Date).toUTCString() + ' uncaughtException:', err.message)
