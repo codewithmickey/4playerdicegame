@@ -243,7 +243,7 @@
     }
 
     function initSocketIO(){
-        socket = io.connect('ws://dicegame.codewithmickey.com', {
+        socket = io.connect('ws://dicegame.codewithmickey.com:8081', {
             
             transports: ['websocket']
         });
