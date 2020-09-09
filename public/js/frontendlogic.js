@@ -243,7 +243,7 @@
     }
 
     function initSocketIO(){
-        socket = io.connect('ws://localhost:8080', {
+        socket = io.connect('ws://dicegame.codewithmickey.com', {
             
             transports: ['websocket']
         });
